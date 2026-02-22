@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pizzaiolo Pro">
+  <title>Pizzaiolo Pro</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,system-ui,sans-serif;background:linear-gradient(135deg,#fffbeb,#fff7ed,#fef3c7);padding:16px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom));min-height:100vh}
+    .container{max-width:500px;margin:0 auto}
+    h1{text-align:center;font-size:24px;color:#451a03;margin-bottom:4px;font-family:Georgia,serif}
+    .sub{text-align:center;color:#b45309;font-style:italic;margin-bottom:12px;font-family:Georgia,serif}
+    .card{background:rgba(255,255,255,0.85);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(120,53,15,0.08)}
+    .card-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#d97706;margin-bottom:12px;font-weight:600}
+    .label{font-size:14px;color:#451a03;font-weight:500;margin-bottom:6px}
+    .row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .btn{width:52px;height:52px;border-radius:12px;border:none;background:#fef3c7;color:#92400e;font-size:24px;font-weight:bold;cursor:pointer;touch-action:manipulation}
+    .btn:active{background:#fde68a;transform:scale(0.95)}
+    .val{flex:1;text-align:center;font-size:36px;font-weight:300;color:#451a03}
+    input[type=range]{width:100%;height:24px;-webkit-appearance:none;background:#fde68a;border-radius:12px;margin:8px 0;touch-action:manipulation}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:#d97706;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .slider-row{display:flex;justify-content:space-between;font-size:12px;color:#b45309;margin-top:-4px;margin-bottom:12px}
+    .slider-val{font-size:16px;color:#451a03;font-weight:500}
+    .slider-group{margin-bottom:4px}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .badges{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .badge{background:#fef3c7;color:#b45309;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:500}
+    .toggle-group{display:flex;gap:8px;margin-bottom:12px}
+    .toggle-btn{flex:1;padding:10px 8px;border:2px solid #fde68a;border-radius:12px;background:white;color:#92400e;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all 0.2s}
+    .toggle-btn.active{background:#d97706;border-color:#d97706;color:white}
+    .toggle-btn.active.starter{background:#059669;border-color:#059669}
+    .toggle-btn:not(.active):active{background:#fef3c7}
+    .info-note{background:#fef3c7;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#92400e;display:none}
+    .info-note.visible{display:block}
+    .info-note strong{color:#b45309}
+    .info-note.starter-note{background:#d1fae5}
+    .info-note.starter-note strong{color:#047857}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .poolish-card{background:linear-gradient(135deg,#d97706,#b45309);border-radius:16px;padding:14px;color:white}
+    .poolish-card.starter-mode{background:linear-gradient(135deg,#059669,#047857)}
+    .poolish-card h3{font-size:15px;margin-bottom:2px;font-family:Georgia,serif}
+    .poolish-card .day{font-size:11px;color:#fde68a;margin-bottom:10px}
+    .poolish-card.starter-mode .day{color:#a7f3d0}
+    .ing{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+    .ing span:first-child{opacity:0.9}
+    .ing span:last-child{font-family:ui-monospace,monospace;font-weight:500}
+    .ing.hidden{display:none}
+    .dough-card{background:rgba(255,255,255,0.9);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    .dough-card h3{font-size:15px;color:#451a03;margin-bottom:2px;font-family:Georgia,serif}
+    .dough-card .day{font-size:11px;color:#d97706;margin-bottom:10px}
+    .dough-card .ing span:first-child{color:#92400e}
+    .dough-card .ing span:last-child{color:#451a03;font-family:ui-monospace,monospace}
+    .totals{background:#1c1917;border-radius:16px;padding:14px;color:white;display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;margin-bottom:12px}
+    .totals .tv{font-size:20px;font-weight:300}
+    .totals .tv span{font-size:12px;color:#fbbf24}
+    .totals .tl{font-size:10px;color:#fbbf24;margin-top:2px}
+    .waste-note{text-align:center;font-size:11px;color:#92400e;margin-top:-8px;margin-bottom:12px}
+    .step{background:rgba(255,255,255,0.7);border-radius:12px;padding:10px 12px;margin-bottom:8px;border-left:3px solid #d97706}
+    .step.starter-mode{border-left-color:#059669}
+    .step h4{font-size:13px;color:#451a03;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+    .step h4 .num{background:#d97706;color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+    .step.starter-mode h4 .num{background:#059669}
+    .step h4 .day-tag{font-size:10px;background:#fef3c7;color:#b45309;padding:2px 6px;border-radius:6px;font-weight:normal;margin-left:auto}
+    .step p{font-size:12px;color:#78350f;line-height:1.5;margin-left:28px}
+    .tips{background:rgba(254,243,199,0.6);border-radius:16px;padding:14px;margin-bottom:12px}
+    .tips h3{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#d97706;margin-bottom:10px;font-weight:600}
+    .tips ul{list-style:none;font-size:12px;color:#78350f}
+    .tips li{margin-bottom:6px;line-height:1.4}
+    .tips strong{color:#451a03}
+    footer{text-align:center;font-size:11px;color:#b45309;padding:8px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍕 Pizzaiolo Pro</h1>
+    
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="poolish-btn">🫧 Poolish</button>
+      <button class="toggle-btn" id="starter-btn">🌾 Sourdough Starter</button>
+    </div>
+    
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="wood-btn">🔥 Wood-Fired</button>
+      <button class="toggle-btn" id="electric-btn">🏠 Electric Oven</button>
+    </div>
+    
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="day3-btn">3-Day Method</button>
+      <button class="toggle-btn" id="day2-btn">2-Day Method</button>
+    </div>
+    
+    <div class="info-note" id="flour-note">
+      <strong>⚡ Electric Oven:</strong> Use <strong>Caputo Americana</strong> flour—its malted wheat helps achieve better crust browning at lower temperatures.
+    </div>
+    
+    <div class="info-note starter-note" id="starter-note">
+      <strong>🌾 Sourdough:</strong> Use active starter at peak (doubled, bubbly). Fermentation is slower than poolish—extend bulk ferment as needed.
+    </div>
+    
+    <div class="badges">
+      <span class="badge" id="badge-method">🫧 Poolish</span>
+      <span class="badge" id="badge-oven">🔥 Wood-Fired</span>
+      <span class="badge" id="badge-days">3-Day</span>
+      <span class="badge" id="badge-hydration">70% Hydration</span>
+      <span class="badge" id="badge-salt">3% Salt</span>
+      <span class="badge" id="badge-preferment">40% Poolish</span>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Configure</div>
+      
+      <div class="label">Number of Pizzas</div>
+      <div class="row">
+        <button class="btn" id="minus">−</button>
+        <div class="val" id="count">4</div>
+        <button class="btn" id="plus">+</button>
+      </div>
+      
+      <div class="slider-group">
+        <div class="label">Ball Weight: <span class="slider-val" id="wv">260g</span></div>
+        <input type="range" id="weight" min="200" max="350" step="5" value="260">
+        <div class="slider-row"><span>200g</span><span>350g</span></div>
+      </div>
+      
+      <div class="slider-group" id="preferment-group">
+        <div class="label" id="preferment-label">Poolish: <span class="slider-val" id="pv">40%</span></div>
+        <input type="range" id="preferment" min="30" max="100" step="5" value="40">
+        <div class="slider-row" id="preferment-range"><span>30%</span><span>100%</span></div>
+      </div>
+      
+      <div class="two-col">
+        <div class="slider-group">
+          <div class="label">Hydration: <span class="slider-val" id="hv">70%</span></div>
+          <input type="range" id="hydration" min="60" max="80" step="1" value="70">
+          <div class="slider-row"><span>60%</span><span>80%</span></div>
+        </div>
+        <div class="slider-group">
+          <div class="label">Salt: <span class="slider-val" id="sv">3%</span></div>
+          <input type="range" id="salt" min="2" max="4" step="0.1" value="3">
+          <div class="slider-row"><span>2%</span><span>4%</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid">
+      <div class="poolish-card" id="preferment-card">
+        <h3 id="preferment-title">🫧 Poolish</h3>
+        <p class="day" id="preferment-day">Day 1 • 1hr RT + 16-24hr fridge</p>
+        <div class="ing"><span>Flour</span><span id="pf">143g</span></div>
+        <div class="ing"><span>Water</span><span id="pw">143g</span></div>
+        <div class="ing" id="py-row"><span>Yeast</span><span id="py">2.6g</span></div>
+        <div class="ing" id="ph-row"><span>Honey</span><span id="ph">2.6g</span></div>
+      </div>
+      <div class="dough-card">
+        <h3>🥖 Dough</h3>
+        <p class="day" id="dough-day">Day 2 • Add to poolish</p>
+        <div class="ing"><span>Flour</span><span id="df">367g</span></div>
+        <div class="ing" id="dw-row"><span>Water</span><span id="dw">214g</span></div>
+        <div class="ing"><span>Salt</span><span id="ds">15g</span></div>
+        <div class="ing hidden" id="dy-row"><span>Yeast</span><span id="dy">2g</span></div>
+        <div class="ing"><span>Oil</span><span id="do">5g</span></div>
+      </div>
+    </div>
+    
+    <div class="totals">
+      <div><div class="tv" id="tf">510<span>g</span></div><div class="tl">Total Flour</div></div>
+      <div><div class="tv" id="tw">357<span>g</span></div><div class="tl">Total Water</div></div>
+      <div><div class="tv" id="td">1020<span>g</span></div><div class="tl">Total Dough</div></div>
+    </div>
+    <div class="waste-note">Includes 2% extra for waste</div>
+    
+    <div class="card" style="padding:12px">
+      <div class="card-title">Method</div>
+      <div id="steps"></div>
+    </div>
+    
+    <div class="tips">
+      <h3>🔑 Key Tips</h3>
+      <ul>
+        <li><strong>Top stays top:</strong> Gluten develops on surface—keep it facing up to trap air.</li>
+        <li><strong>Seal the bottom:</strong> Pinch seams and drag ball toward you for tension.</li>
+        <li><strong>Seam-side down:</strong> Place balls sealed side down when proofing.</li>
+        <li><strong>Poke test:</strong> If indent slowly springs back, dough is ready.</li>
+        <li><strong>Windowpane test:</strong> Stretch a small piece of dough thin—if you can see light through it without tearing, gluten is developed.</li>
+        <li><strong>Flour choice:</strong> Caputo Americana for home ovens (malted wheat aids browning at lower temps). Caputo Pizzeria (Blue) for wood-fired ovens (designed for extreme heat, soft airy crust).</li>
+      </ul>
+    </div>
+    
+    <footer id="footer">
+      Based on Vito Iacopelli's Poolish Method<br>
+      Double fermentation for superior flavor
+    </footer>
+  </div>
+
+<script>
+(function(){
+  var c = 4;        // pizza count
+  var w = 260;      // ball weight
+  var p = 40;       // preferment % (of total water for poolish, of total flour for starter)
+  var h = 70;       // hydration %
+  var s = 3;        // salt %
+  var ovenType = 'wood';      // 'wood' or 'electric'
+  var dayMethod = 3;          // 2 or 3 day method
+  var prefermentType = 'poolish';  // 'poolish' or 'starter'
+  
+  var WASTE_FACTOR = 1.02; // 2% extra for waste
+  
+  // Base constants (scale from this)
+  var BASE_YIELD = 8 * 250; // 2000g for 8 pizzas
+  var BASE_FLOUR = 1000;    // 1000g flour base
+  var BASE_YEAST = 5;
+  var BASE_HONEY = 5;
+  var BASE_OIL = 10;
+  
+  function $(id){ return document.getElementById(id); }
+  
+  function update(){
+    // Calculate target dough weight with waste
+    var targetDough = c * w * WASTE_FACTOR;
+    
+    // Calculate total flour from target dough using baker's percentages
+    // totalDough = flour × (1 + hydration + salt + oil + yeast + honey)
+    // Oil = 1% of flour, Yeast = 0.5%, Honey = 0.5%
+    var flourMultiplier = 1 + (h / 100) + (s / 100) + 0.01 + 0.005 + 0.005;
+    var totalFlour = Math.round(targetDough / flourMultiplier);
+    var totalWater = Math.round(totalFlour * (h / 100));
+    
+    // Scale factor for yeast/honey/oil (based on flour)
+    var scale = totalFlour / BASE_FLOUR;
+    
+    var prefermentFlour, prefermentWater, doughWater, doughFlour;
+    
+    if(prefermentType === 'poolish'){
+      // Poolish: p% of water goes to poolish (100% hydration in poolish)
+      prefermentWater = Math.round(totalWater * (p / 100));
+      prefermentFlour = prefermentWater; // 100% hydration
+      doughWater = totalWater - prefermentWater;
+      doughFlour = totalFlour - prefermentFlour;
+    } else {
+      // Sourdough Starter: p% of total flour as starter (100% hydration starter)
+      // Starter amount = p% of total flour, split 50/50 flour/water
+      var starterTotal = Math.round(totalFlour * (p / 100));
+      prefermentFlour = Math.round(starterTotal / 2);
+      prefermentWater = prefermentFlour; // 100% hydration
+      doughFlour = totalFlour - prefermentFlour;
+      doughWater = totalWater - prefermentWater;
+    }
+    
+    // Salt based on total flour
+    var saltG = Math.round(totalFlour * (s / 100));
+    
+    // Scale yeast, honey, oil (only for poolish)
+    var yeast = Math.round(BASE_YEAST * scale * 10) / 10;
+    var honey = Math.round(BASE_HONEY * scale * 10) / 10;
+    var oil = Math.round(BASE_OIL * scale);
+    
+    // Update display values
+    $('count').textContent = c;
+    $('wv').textContent = w + 'g';
+    $('pv').textContent = p + '%';
+    $('hv').textContent = h + '%';
+    $('sv').textContent = s + '%';
+    
+    // Update badges
+    $('badge-hydration').textContent = h + '% Hydration';
+    $('badge-salt').textContent = s + '% Salt';
+    $('badge-oven').textContent = ovenType === 'wood' ? '🔥 Wood-Fired' : '🏠 Electric';
+    $('badge-days').textContent = dayMethod + '-Day';
+    
+    if(prefermentType === 'poolish'){
+      $('badge-method').textContent = '🫧 Poolish';
+      $('badge-preferment').textContent = p + '% Poolish';
+      $('preferment-label').innerHTML = 'Poolish: <span class="slider-val" id="pv">' + p + '%</span>';
+      $('preferment-title').textContent = '🫧 Poolish';
+      $('preferment-card').classList.remove('starter-mode');
+      $('py-row').classList.remove('hidden');
+      $('ph-row').classList.remove('hidden');
+      $('footer').innerHTML = 'Based on Vito Iacopelli\'s Poolish Method<br>Double fermentation for superior flavor';
+    } else {
+      $('badge-method').textContent = '🌾 Starter';
+      $('badge-preferment').textContent = p + '% Starter';
+      $('preferment-label').innerHTML = 'Starter: <span class="slider-val" id="pv">' + p + '%</span>';
+      $('preferment-title').textContent = '🌾 Starter';
+      $('preferment-card').classList.add('starter-mode');
+      $('py-row').classList.add('hidden');
+      $('ph-row').classList.add('hidden');
+      $('footer').innerHTML = 'Sourdough Method<br>Natural fermentation for complex flavor';
+    }
+    
+    // Update preferment card
+    $('pf').textContent = prefermentFlour + 'g';
+    $('pw').textContent = prefermentWater + 'g';
+    if(prefermentType === 'poolish'){
+      $('py').textContent = yeast + 'g';
+      $('ph').textContent = honey + 'g';
+    }
+    
+    // Update dough card
+    $('df').textContent = doughFlour + 'g';
+    $('dw').textContent = doughWater + 'g';
+    $('ds').textContent = saltG + 'g';
+    $('do').textContent = oil + 'g';
+    
+    // Show/hide dough water row if very low
+    if(doughWater <= 0){
+      $('dw-row').classList.add('hidden');
+    } else {
+      $('dw-row').classList.remove('hidden');
+    }
+    
+    // Show/hide dough yeast row - only for poolish with >50%
+    var doughYeast = 0;
+    if(prefermentType === 'poolish' && p > 50) {
+      // Linear interpolation: 0% at 50% poolish, 1% of dough flour at 100%
+      var yeastPercent = (p - 50) / 50 * 0.01;
+      doughYeast = Math.round(doughFlour * yeastPercent * 10) / 10;
+    }
+    
+    if(prefermentType === 'poolish' && p > 50 && doughYeast >= 0.5){
+      $('dy-row').classList.remove('hidden');
+      $('dy').textContent = doughYeast + 'g';
+    } else {
+      $('dy-row').classList.add('hidden');
+    }
+    
+    // Update totals
+    var totalDough = Math.round(c * w * WASTE_FACTOR);
+    $('tf').innerHTML = totalFlour + '<span>g</span>';
+    $('tw').innerHTML = totalWater + '<span>g</span>';
+    $('td').innerHTML = totalDough + '<span>g</span>';
+    
+    // Update day labels based on preferment type and method
+    if(prefermentType === 'poolish'){
+      $('preferment-day').textContent = 'Day 1 • 1hr RT + 16-24hr fridge';
+      if(p >= 100){
+        $('dough-day').textContent = 'Day 2 • Add flour, salt, oil';
+      } else {
+        $('dough-day').textContent = 'Day 2 • Add to poolish';
+      }
+    } else {
+      $('preferment-day').textContent = 'Use at peak • Doubled & bubbly';
+      $('dough-day').textContent = 'Day 1 • Mix with starter';
+    }
+    
+    // Show/hide notes
+    if(ovenType === 'electric'){
+      $('flour-note').classList.add('visible');
+    } else {
+      $('flour-note').classList.remove('visible');
+    }
+    
+    if(prefermentType === 'starter'){
+      $('starter-note').classList.add('visible');
+    } else {
+      $('starter-note').classList.remove('visible');
+    }
+    
+    renderSteps();
+  }
+  
+  function renderSteps(){
+    // Calculate values for step text (same formula as update())
+    var targetDough = c * w * WASTE_FACTOR;
+    var flourMultiplier = 1 + (h / 100) + (s / 100) + 0.01 + 0.005 + 0.005;
+    var totalFlour = Math.round(targetDough / flourMultiplier);
+    var totalWater = Math.round(totalFlour * (h / 100));
+    
+    var doughFlour, doughYeast = 0;
+    
+    if(prefermentType === 'poolish'){
+      var poolishWater = Math.round(totalWater * (p / 100));
+      var poolishFlour = poolishWater;
+      doughFlour = totalFlour - poolishFlour;
+      
+      if(p > 50) {
+        var yeastPercent = (p - 50) / 50 * 0.01;
+        doughYeast = Math.round(doughFlour * yeastPercent * 10) / 10;
+      }
+    } else {
+      var starterTotal = Math.round(totalFlour * (p / 100));
+      var starterFlour = Math.round(starterTotal / 2);
+      doughFlour = totalFlour - starterFlour;
+    }
+    
+    var yeastNote = '';
+    if(prefermentType === 'poolish' && p > 50 && doughYeast >= 0.5) {
+      yeastNote = ' Add ' + doughYeast + 'g yeast with the flour—less water in dough means poolish yeast needs help.';
+    }
+    
+    var steps = [];
+    var stepClass = prefermentType === 'starter' ? 'starter-mode' : '';
+    
+    if(prefermentType === 'poolish'){
+      // POOLISH METHODS
+      if(dayMethod === 3){
+        steps = [
+          {n:1, t:'Make Poolish', d:'Day 1', p:'Mix water, honey, yeast until dissolved. Add flour, combine until no dry spots. Cover, rest 1hr at room temp (20-22°C), then fridge 16-24hrs. Don\'t exceed 24hrs or it becomes acidic.'},
+          {n:2, t:'Make Dough', d:'Day 2', p:'Poolish to room temp 30-45min. Add poolish, flour, salt to bowl.' + yeastNote + (p < 100 ? ' Slowly add water while mixing—not all at once.' : '') + ' Knead 8-10min until smooth. Add oil, incorporate.'},
+          {n:3, t:'Rest & Shape', d:'', p:'Oil dough, cover, rest 15-20min at room temp. With oiled hands, lift and tuck edges under—keep TOP on TOP always to trap air.'},
+          {n:4, t:'Cold Bulk Ferment', d:'', p:'Place in oiled container (top up). Cover, refrigerate 16-24hrs.'},
+          {n:5, t:'Divide & Ball', d:'Day 3', p:'Rest 30-60min out of fridge. Flip onto floured surface. Cut into '+c+' pieces of '+w+'g. Keep original top OUTSIDE, fold edges under, pinch to seal, drag to create tension.'},
+          {n:6, t:'Final Proof', d:'', p:'Place seam-side DOWN, 3-4 fingers apart. Oil tops, cover with plastic. Proof 2-4hrs at room temp. Poke test: slow springback = ready.'}
+        ];
+      } else {
+        steps = [
+          {n:1, t:'Make Poolish', d:'Day 1', p:'Mix water, honey, yeast until dissolved. Add flour, combine until no dry spots. Cover, rest 1hr at room temp (20-22°C), then fridge 16-24hrs. Don\'t exceed 24hrs or it becomes acidic.'},
+          {n:2, t:'Make Dough', d:'Day 2', p:'Poolish to room temp 30-45min. Add poolish, flour, salt to bowl.' + yeastNote + (p < 100 ? ' Slowly add water while mixing—not all at once.' : '') + ' Knead 8-10min until smooth. Add oil, incorporate.'},
+          {n:3, t:'Rest & Shape', d:'', p:'Oil dough, cover, rest 1hr at room temp. With oiled hands, lift and tuck edges under—keep TOP on TOP always to trap air.'},
+          {n:4, t:'Divide & Ball', d:'', p:'Flip onto floured surface. Cut into '+c+' pieces of '+w+'g. Keep original top OUTSIDE, fold edges under, pinch to seal, drag to create tension.'},
+          {n:5, t:'Final Proof', d:'', p:'Place seam-side DOWN, 3-4 fingers apart. Oil tops, cover with plastic. Proof 2-4hrs at room temp. Poke test: slow springback = ready. Bake same day.'}
+        ];
+      }
+    } else {
+      // SOURDOUGH STARTER METHODS
+      if(dayMethod === 3){
+        steps = [
+          {n:1, t:'Feed Starter', d:'Day 1', p:'Feed your starter 4-8 hours before mixing. It should double in size and be very bubbly when ready. Float test: a small spoonful should float in water.'},
+          {n:2, t:'Mix Dough', d:'', p:'Combine starter, flour, water. Mix until no dry spots. Rest 30min (autolyse). Add salt and oil, knead 8-10min until smooth and stretchy.'},
+          {n:3, t:'Bulk Ferment', d:'', p:'Cover and rest at room temp. Stretch and fold every 30min for first 2 hours. Let rise until increased 50% (3-6 hours depending on temp and starter activity).'},
+          {n:4, t:'Cold Bulk Ferment', d:'', p:'Shape into ball, place in oiled container (top up). Cover, refrigerate 24-48hrs. Longer = more sour, complex flavor.'},
+          {n:5, t:'Divide & Ball', d:'Day 2-3', p:'Rest 30-60min out of fridge. Flip onto floured surface. Cut into '+c+' pieces of '+w+'g. Keep original top OUTSIDE, fold edges under, pinch to seal.'},
+          {n:6, t:'Final Proof', d:'', p:'Place seam-side DOWN, 3-4 fingers apart. Oil tops, cover. Proof 2-4hrs at room temp. Poke test: slow springback = ready.'}
+        ];
+      } else {
+        steps = [
+          {n:1, t:'Feed Starter', d:'Day 1', p:'Feed your starter 4-8 hours before mixing. It should double in size and be very bubbly when ready. Float test: a small spoonful should float in water.'},
+          {n:2, t:'Mix Dough', d:'', p:'Combine starter, flour, water. Mix until no dry spots. Rest 30min (autolyse). Add salt and oil, knead 8-10min until smooth and stretchy.'},
+          {n:3, t:'Bulk Ferment', d:'', p:'Cover and rest at room temp. Stretch and fold every 30min for first 2 hours. Let rise until doubled (4-8 hours depending on temp and starter activity).'},
+          {n:4, t:'Divide & Ball', d:'Day 2', p:'Flip onto floured surface. Cut into '+c+' pieces of '+w+'g. Keep original top OUTSIDE, fold edges under, pinch to seal, drag to create tension.'},
+          {n:5, t:'Final Proof', d:'', p:'Place seam-side DOWN, 3-4 fingers apart. Oil tops, cover. Proof 2-4hrs at room temp. Poke test: slow springback = ready. Bake same day.'}
+        ];
+      }
+    }
+    
+    var html = '';
+    for(var i=0; i<steps.length; i++){
+      var st = steps[i];
+      html += '<div class="step ' + stepClass + '"><h4><span class="num">'+st.n+'</span>'+st.t;
+      if(st.d) html += '<span class="day-tag">'+st.d+'</span>';
+      html += '</h4><p>'+st.p+'</p></div>';
+    }
+    $('steps').innerHTML = html;
+  }
+  
+  function setPrefermentSlider(){
+    var slider = $('preferment');
+    var rangeEl = $('preferment-range');
+    
+    if(prefermentType === 'poolish'){
+      slider.min = 30;
+      slider.max = 100;
+      slider.step = 5;
+      if(p < 30) p = 30;
+      if(p > 100) p = 100;
+      slider.value = p;
+      rangeEl.innerHTML = '<span>30%</span><span>100%</span>';
+    } else {
+      slider.min = 10;
+      slider.max = 40;
+      slider.step = 5;
+      if(p < 10) p = 10;
+      if(p > 40) p = 40;
+      slider.value = p;
+      rangeEl.innerHTML = '<span>10%</span><span>40%</span>';
+    }
+  }
+  
+  function init(){
+    $('minus').addEventListener('click', function(){ c = Math.max(1, c-1); update(); });
+    $('plus').addEventListener('click', function(){ c = Math.min(50, c+1); update(); });
+    $('weight').addEventListener('input', function(){ w = parseInt(this.value); update(); });
+    $('preferment').addEventListener('input', function(){ p = parseInt(this.value); update(); });
+    $('hydration').addEventListener('input', function(){ h = parseInt(this.value); update(); });
+    $('salt').addEventListener('input', function(){ s = parseFloat(this.value); update(); });
+    
+    // Preferment type toggles
+    $('poolish-btn').addEventListener('click', function(){
+      prefermentType = 'poolish';
+      $('poolish-btn').classList.add('active');
+      $('poolish-btn').classList.remove('starter');
+      $('starter-btn').classList.remove('active');
+      $('starter-btn').classList.remove('starter');
+      p = 40; // Default poolish %
+      setPrefermentSlider();
+      update();
+    });
+    
+    $('starter-btn').addEventListener('click', function(){
+      prefermentType = 'starter';
+      $('starter-btn').classList.add('active');
+      $('starter-btn').classList.add('starter');
+      $('poolish-btn').classList.remove('active');
+      p = 20; // Default starter % (research showed 10-20% is typical)
+      setPrefermentSlider();
+      update();
+    });
+    
+    // Oven type toggles
+    $('wood-btn').addEventListener('click', function(){
+      ovenType = 'wood';
+      $('wood-btn').classList.add('active');
+      $('electric-btn').classList.remove('active');
+      // Reset preferment for wood-fired (only for poolish)
+      if(prefermentType === 'poolish'){
+        p = 40;
+        $('preferment').value = 40;
+      }
+      update();
+    });
+    
+    $('electric-btn').addEventListener('click', function(){
+      ovenType = 'electric';
+      $('electric-btn').classList.add('active');
+      $('wood-btn').classList.remove('active');
+      // Set poolish to 100% for electric oven (only if using poolish)
+      if(prefermentType === 'poolish'){
+        p = 100;
+        $('preferment').value = 100;
+      }
+      update();
+    });
+    
+    // Day method toggles
+    $('day3-btn').addEventListener('click', function(){
+      dayMethod = 3;
+      $('day3-btn').classList.add('active');
+      $('day2-btn').classList.remove('active');
+      update();
+    });
+    
+    $('day2-btn').addEventListener('click', function(){
+      dayMethod = 2;
+      $('day2-btn').classList.add('active');
+      $('day3-btn').classList.remove('active');
+      update();
+    });
+    
+    update();
+  }
+  
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
